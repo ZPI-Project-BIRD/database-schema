@@ -7,6 +7,7 @@ if (!import.meta.env["DATABASE_URL"]) {
 export default defineConfig({
   dialect: "postgresql",
   schema: "./schema.ts",
+  schemaFilter: ["geoportal"],
   dbCredentials: {
     url: import.meta.env["DATABASE_URL"],
   },
