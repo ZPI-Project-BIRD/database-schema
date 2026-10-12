@@ -1,0 +1,1 @@
+ALTER TABLE "geoportal"."features" RENAME COLUMN "colorSpace" TO "color_space";

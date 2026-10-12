@@ -1,0 +1,70 @@
+{
+  "id": "bf747f72-8487-4d44-baf3-9ec1d028f3a8",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "geoportal.features": {
+      "name": "features",
+      "schema": "geoportal",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "colorSpace": {
+          "name": "colorSpace",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pixel_size": {
+          "name": "pixel_size",
+          "type": "numeric(2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dataset_date": {
+          "name": "dataset_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "file_size": {
+          "name": "file_size",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "downloaded_at": {
+          "name": "downloaded_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {
+    "geoportal": "geoportal"
+  },
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
