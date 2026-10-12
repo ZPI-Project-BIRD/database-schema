@@ -6,7 +6,7 @@ if (!import.meta.env["DATABASE_URL"]) {
 
 export default defineConfig({
   dialect: "postgresql",
-  schema: "./src/schema.ts",
+  schema: "./schema.ts",
   dbCredentials: {
     url: import.meta.env["DATABASE_URL"],
   },
