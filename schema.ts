@@ -8,4 +8,5 @@ export const features = geoportal.table("features", {
   pixelSize: decimal("pixel_size", { precision: 2 }).notNull(),
   datasetDate: timestamp("dataset_date").notNull(),
   fileSize: integer("file_size").notNull(),
+  downloadedAt: timestamp("downloaded_at"),
 });
