@@ -1,4 +1,4 @@
-import { decimal, integer, pgSchema, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, decimal, integer, pgSchema, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const geoportal = pgSchema("geoportal");
 
@@ -8,5 +8,7 @@ export const features = geoportal.table("features", {
   pixelSize: decimal("pixel_size", { precision: 10, scale: 2 }).notNull(),
   datasetDate: timestamp("dataset_date").notNull(),
   fileSize: integer("file_size").notNull(),
+  downloaded: boolean().default(false).notNull(),
   downloadedAt: timestamp("downloaded_at"),
+  tiled: boolean().default(false).notNull(),
 });
