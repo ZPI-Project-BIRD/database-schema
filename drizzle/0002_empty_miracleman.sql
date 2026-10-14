@@ -1,0 +1,1 @@
+ALTER TABLE "geoportal"."features" ALTER COLUMN "pixel_size" SET DATA TYPE numeric(10, 2);
