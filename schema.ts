@@ -70,20 +70,6 @@ export const projects = pgTable("projects", {
 
 export const geoportal = pgSchema("geoportal");
 
-export const featureDownloadStatus = geoportal.enum("feature_download_status", [
-  "0_PENDING",
-  "1_DOWNLOADING",
-  "2_DOWNLOADED",
-  "3_FAILED",
-]);
-
-export const featureTilingStatus = geoportal.enum("feature_tiling_status", [
-  "0_PENDING",
-  "1_PROCESSING",
-  "2_COMPLETED",
-  "3_FAILED",
-]);
-
 export const features = geoportal.table(
   "features",
   {
@@ -103,7 +89,6 @@ export const features = geoportal.table(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
     downloadedAt: timestamp("downloaded_at"),
-    tiledAt: timestamp("tiled_at"),
   },
   (t) => [],
 );
@@ -132,8 +117,8 @@ export const projectFeatures = geoportal.table(
 );
 
 export const recognitionJobStatus = geoportal.enum("recognition_job_status", [
-  "0_STARTED",
-  "1_COMPLETED",
+  "0_PENDING",
+  "1_STARTED",
   "2_FINISHED",
   "3_FAILED",
 ]);
@@ -144,7 +129,7 @@ export const recognitionJobs = geoportal.table("recognition_jobs", {
   featureId: text("feature_id").references(() => features.id),
   startedAt: timestamp("started_at").notNull().defaultNow(),
   finishedAt: timestamp("finished_at"),
-  status: recognitionJobStatus().notNull().default("0_STARTED"),
+  status: recognitionJobStatus().notNull().default("0_PENDING"),
   error: text(),
 });
 
