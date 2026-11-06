@@ -125,8 +125,8 @@ export const recognitionJobStatus = geoportal.enum("recognition_job_status", [
 
 export const recognitionJobs = geoportal.table("recognition_jobs", {
   id: uuid().primaryKey().defaultRandom(),
-  projectId: uuid("project_id").references(() => projects.id),
-  featureId: text("feature_id").references(() => features.id),
+  projectId: uuid("project_id").references(() => projects.id, { onDelete: "cascade" }),
+  featureId: text("feature_id").references(() => features.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   startedAt: timestamp("started_at").notNull(),
   finishedAt: timestamp("finished_at"),
@@ -137,7 +137,7 @@ export const recognitionJobs = geoportal.table("recognition_jobs", {
 export const detections = geoportal.table("detections", {
   id: uuid().primaryKey().defaultRandom(),
   recognitionJobId: uuid("recognition_job_id")
-    .references(() => recognitionJobs.id)
+    .references(() => recognitionJobs.id, { onDelete: "cascade" })
     .notNull(),
   bounds: jsonb(),
 });
