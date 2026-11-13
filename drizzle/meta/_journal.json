@@ -78,6 +78,20 @@
       "when": 1793018970606,
       "tag": "0010_handy_ego",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794573154665,
+      "tag": "0011_platform_administration_annotations",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794604822516,
+      "tag": "0012_restore_recognition_start_default",
+      "breakpoints": true
     }
   ]
 }

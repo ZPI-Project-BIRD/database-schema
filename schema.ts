@@ -31,6 +31,7 @@ export const users = pgTable(
     passwordHash: text("password_hash").notNull(),
 
     isAdmin: boolean("is_admin").default(false).notNull(),
+    authVersion: integer("auth_version").default(0).notNull(),
 
     bannedAt: timestamp("banned_at"),
     banReason: text("ban_reason"),
@@ -62,7 +63,7 @@ export const projects = pgTable("projects", {
   id: uuid().primaryKey().defaultRandom(),
   name: text().notNull(),
   organizationId: uuid("organization_id")
-    .references(() => organizations.id)
+    .references(() => organizations.id, { onDelete: "cascade" })
     .notNull(),
   topLeft: geometry("top_left", { type: "point", mode: "xy", srid: 4326 }).notNull(),
   bottomRight: geometry("bottom_right", { type: "point", mode: "xy", srid: 4326 }).notNull(),
@@ -89,6 +90,7 @@ export const features = geoportal.table(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
     downloadedAt: timestamp("downloaded_at"),
+    tiledAt: timestamp("tiled_at"),
   },
   (t) => [],
 );
@@ -128,7 +130,7 @@ export const recognitionJobs = geoportal.table("recognition_jobs", {
   projectId: uuid("project_id").references(() => projects.id, { onDelete: "cascade" }),
   featureId: text("feature_id").references(() => features.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  startedAt: timestamp("started_at").notNull(),
+  startedAt: timestamp("started_at").notNull().defaultNow(),
   finishedAt: timestamp("finished_at"),
   status: recognitionJobStatus().notNull().default("0_PENDING"),
   error: text(),
@@ -141,3 +143,52 @@ export const detections = geoportal.table("detections", {
     .notNull(),
   bounds: jsonb(),
 });
+
+// Keep these existing database enums represented even though processing currently uses timestamps.
+export const featureDownloadStatus = geoportal.enum("feature_download_status", [
+  "0_PENDING", "1_DOWNLOADING", "2_DOWNLOADED", "3_FAILED",
+]);
+export const featureTilingStatus = geoportal.enum("feature_tiling_status", [
+  "0_PENDING", "1_PROCESSING", "2_COMPLETED", "3_FAILED",
+]);
+
+export const projectProcessing = pgTable("project_processing", {
+  projectId: uuid("project_id").primaryKey().references(() => projects.id, { onDelete: "cascade" }),
+  discoveryStatus: text("discovery_status").default("PENDING").notNull(),
+  attempts: integer().default(0).notNull(),
+  attemptToken: uuid("attempt_token"),
+  lockedUntil: timestamp("locked_until", { withTimezone: true }),
+  lastError: text("last_error"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [check("project_processing_discovery_status", sql`${t.discoveryStatus} in ('PENDING', 'RUNNING', 'SUCCEEDED', 'FAILED')`)]);
+
+// An overlay on immutable model output. No FK to raw detections: a model retry replaces those rows.
+export const detectionAnnotations = geoportal.table("detection_annotations", {
+  id: uuid().primaryKey().defaultRandom(),
+  projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  featureId: text("feature_id").notNull().references(() => features.id),
+  recognitionJobId: uuid("recognition_job_id").references(() => recognitionJobs.id, { onDelete: "set null" }),
+  sourceDetectionId: uuid("source_detection_id"),
+  bounds: jsonb().notNull(),
+  deleted: boolean().default(false).notNull(),
+  version: integer().default(1).notNull(),
+  updatedBy: varchar("updated_by", { length: 16 }).notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  verifiedBy: varchar("verified_by", { length: 16 }),
+  verifiedAt: timestamp("verified_at", { withTimezone: true }),
+}, (t) => [
+  index("ix_detection_annotations_project").on(t.projectId),
+  check("detection_annotations_version", sql`${t.version} > 0`),
+  check("detection_annotations_verification", sql`(${t.verifiedBy} is null) = (${t.verifiedAt} is null)`),
+]);
+
+export const annotationHistory = geoportal.table("annotation_history", {
+  id: uuid().primaryKey().defaultRandom(),
+  projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  detectionId: uuid("detection_id").notNull(),
+  action: text().notNull(),
+  actor: varchar({ length: 16 }).notNull(),
+  occurredAt: timestamp("occurred_at", { withTimezone: true }).defaultNow().notNull(),
+  before: jsonb(),
+  after: jsonb().notNull(),
+}, (t) => [index("ix_annotation_history_project").on(t.projectId, t.occurredAt)]);
